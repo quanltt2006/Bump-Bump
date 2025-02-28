@@ -13,7 +13,7 @@ const int vit_SIZE = 40;
 const int GRAVITY = 1;
 const int JUMP_STRENGTH = -15;
 const int vit_SPEED = 5;
-const int cnv_WIDTH = 50;
+const int cnv_rong = 50;
 const int cnv_GAP = 500;
 
 SDL_Window* window = nullptr;
@@ -88,13 +88,13 @@ void taocnvs() {
 
 
     int topHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
-    cnv leftTop = {0, 0, cnv_WIDTH, topHeight};
-    cnv rightTop = {mh_rong - cnv_WIDTH, 0, cnv_WIDTH, topHeight};
+    cnv leftTop = {0, 0, cnv_rong, topHeight};
+    cnv rightTop = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
 
     int bottomHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
     int bottomY = mh_cao - bottomHeight;
-    cnv leftBottom = {0, bottomY, cnv_WIDTH, bottomHeight};
-    cnv rightBottom = {mh_rong - cnv_WIDTH, bottomY, cnv_WIDTH, bottomHeight};
+    cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
+    cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
 
     cnvs.push_back(leftTop);
     cnvs.push_back(rightTop);
@@ -105,14 +105,14 @@ void taocnvs() {
         int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - 2 * MIN_GAP);
         int midHeight = 150 ;
 
-        cnv rightMid = {mh_rong - cnv_WIDTH, midY, cnv_WIDTH, midHeight};
+        cnv rightMid = {mh_rong - cnv_rong, midY, cnv_rong, midHeight};
 
         cnvs.push_back(rightMid);
     }
 
 else {int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - 2 * MIN_GAP);
         int midHeight = 150;
-            cnv leftMid = {0, midY, cnv_WIDTH, midHeight};
+            cnv leftMid = {0, midY, cnv_rong, midHeight};
         cnvs.push_back(leftMid);
 
 
