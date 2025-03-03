@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 
     TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 32);
     if (!ourfont) {
-        cout << "Failed to load font! SDL_Error: " << TTF_GetError() << std::endl;
+        cout << "Error" << TTF_GetError() << std::endl;
         return -1;
     }
 
@@ -230,19 +230,19 @@ while (!quit) {
     string scoreText = "Score: " + to_string(score);
     SDL_Surface* scoreSurface = TTF_RenderText_Solid(ourfont, scoreText.c_str(), {255, 255, 255});
     SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
-    SDL_Rect scoreRect = {20, 20, scoreSurface->w, scoreSurface->h};
+    SDL_Rect scoreRect = {170, 20, scoreSurface->w, scoreSurface->h};
     SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
     SDL_FreeSurface(scoreSurface);
     SDL_DestroyTexture(scoreTexture);
 
     if (gameOver) {
         if (gameOverRectY > mh_cao / 2 - 50) {
-            gameOverRectY -= 20; // Tốc độ di chuyển
+            gameOverRectY -= 15;
         }
 
         SDL_Rect gameOverRect = {mh_rong / 2 - 100, gameOverRectY, 200, 100};
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Màu đỏ
-        SDL_RenderFillRect(renderer, &gameOverRect);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+                SDL_RenderFillRect(renderer, &gameOverRect);
 
         SDL_Surface* gameOverSurface = TTF_RenderText_Solid(ourfont, "Game Over", {0, 0, 0});
         SDL_Texture* gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
@@ -265,7 +265,7 @@ while (!quit) {
     SDL_Delay(16);
 }
 
-    // Clean up resources
+
     TTF_CloseFont(ourfont);
     Mix_FreeChunk(amthanh);
     Mix_FreeChunk(amthanh1);
