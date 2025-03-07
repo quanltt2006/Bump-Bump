@@ -120,8 +120,62 @@ else {int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeig
 
 
 }
+void drawmenu(bool &startgame)
+{
+SDL_Event e;
+bool inMenu = true;
+SDL_Surface *menusurface = IMG_Load("menu.jpg");
+SDL_Texture *menuTexture = SDL_CreateTextureFromSurface(renderer,menusurface);
+while (inMenu) {
+    int x,y ;
+    SDL_GetMouseState(&x,&y);
+
+    int buttonwidth = 100;
+    int buttonheight = 50 ;
+    int buttonX = mh_rong/2 - buttonwidth/2;
+    int buttonY = mh_cao/2 - buttonheight/2;
+    if(x>= buttonX && x <=buttonX + 100 && y >= buttonY && y <= buttonY + 50) {
+        buttonwidth = 150;
+        buttonheight = 75;
+        buttonX = mh_rong/2 - buttonwidth/2;
+        buttonY = mh_cao/2 - buttonheight/2;
+    }
+
+    while(SDL_PollEvent(&e)!= 0 ) {
+        if(e.type == SDL_QUIT) {
+            inMenu = false ;
+            startgame = false ;
+        }
+        else if ( e.type == SDL_MOUSEBUTTONDOWN) {
+                if(x>= buttonX && x <=buttonX + 100 && y >= buttonY && y <= buttonY + 50) {
+
+                inMenu = false ;
+                startgame = true;
+
+                }
 
 
+        }
+
+
+    }
+
+   SDL_RenderClear(renderer);
+   SDL_RenderCopy(renderer,menuTexture,NULL,NULL);
+   SDL_Rect playbutton = {buttonX, buttonY, buttonwidth, buttonheight};
+   SDL_Surface* playsurface = IMG_Load("START.png");
+   SDL_Texture* playtexture = SDL_CreateTextureFromSurface(renderer,playsurface);
+   SDL_RenderCopy(renderer,playtexture,NULL,&playbutton);
+   SDL_FreeSurface(playsurface);
+   SDL_DestroyTexture(playtexture);
+
+        SDL_RenderPresent(renderer);
+}
+
+
+
+
+}
 bool check_vacham(SDL_Rect a, SDL_Rect b) {
     return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
 }
@@ -134,11 +188,19 @@ int main(int argc, char* argv[]) {
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Chunk* amthanh = Mix_LoadWAV("click.wav");
     Mix_Chunk* amthanh1 = Mix_LoadWAV("beep.wav");
+    Mix_Chunk* amthanh2 = Mix_LoadWAV("bye.mp3");
 
     TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 32);
     if (!ourfont) {
         cout << "Error" << TTF_GetError() << std::endl;
         return -1;
+    }
+    bool startGame = false;
+    drawmenu(startGame);
+
+    if (!startGame) {
+        close();
+        return 0;
     }
 
     int vitX = mh_rong / 2;
@@ -157,6 +219,7 @@ int main(int argc, char* argv[]) {
 int score = 0;
 bool gameOver = false;
 int gameOverRectY = mh_cao;
+bool gameStarted = false;
 while (!quit) {
     Uint32 currentTime = SDL_GetTicks();
 
@@ -173,15 +236,21 @@ while (!quit) {
                     vitVelY = 0;
                     score = 0;
                     taocnvs();
-                } else {
+                    gameStarted = false ;
+                } else if (!gameStarted) {
+                    gameStarted = true;
                     vitVelY = JUMP_STRENGTH;
                     Mix_PlayChannel(-1, amthanh, 0);
                 }
+            else {vitVelY = JUMP_STRENGTH;
+                    Mix_PlayChannel(-1, amthanh, 0);
+
+            }
             }
         }
     }
 
-    if (!gameOver) {
+    if (!gameOver && gameStarted) {
         vitVelY += GRAVITY;
         vitY += vitVelY;
         vitX += vitVelX;
@@ -236,6 +305,8 @@ while (!quit) {
     SDL_DestroyTexture(scoreTexture);
 
     if (gameOver) {
+            Mix_PlayChannel(-1, amthanh2, 0);
+
         if (gameOverRectY > mh_cao / 2 - 50) {
             gameOverRectY -= 15;
         }
