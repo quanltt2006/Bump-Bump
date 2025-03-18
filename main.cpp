@@ -56,8 +56,8 @@ bool init() {
     return true;
 }
 
-bool loadanh() {
-    SDL_Surface* surface = IMG_Load("duck.jpg");
+bool loadanh(string s ) {
+    SDL_Surface* surface = IMG_Load(s.c_str());
 
 
     texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -236,9 +236,82 @@ void drawmenu(bool& startGame, bool& isHardMode) {
 bool check_vacham(SDL_Rect a, SDL_Rect b) {
     return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
 }
+string selectnv(bool &startgame) {
 
+    SDL_Event e;
+    bool selectscreen = true;
+    string selected = "";
+    SDL_Surface* selectsurface = IMG_Load("menu2.png");
+    SDL_Texture* selecttexture = SDL_CreateTextureFromSurface(renderer, selectsurface);
+    SDL_FreeSurface(selectsurface);
+
+    vector<cnv> v;
+    vector<SDL_Texture*> nvtextures(6);
+    for (int i = 0; i < 6; i++) {
+        v.push_back({100 * (i % 3 + 1), 50 + 150 * (i / 3 +3 ) , 40, 40 });
+        string s = "duck" + to_string(i) + ".png";
+        SDL_Surface* nvsurface = IMG_Load(s.c_str());
+        nvtextures[i] = SDL_CreateTextureFromSurface(renderer, nvsurface);
+        SDL_FreeSurface(nvsurface);
+    }
+
+    while (selectscreen) {
+        int m, n;
+        SDL_GetMouseState(&m, &n);
+
+        for (int i = 0; i < 6; i++) {
+            v[i].width = 60;
+            v[i].height = 60;
+
+        }
+
+        for (int i = 0; i < 6; i++) {
+            if (m >= v[i].x && m <= v[i].x + v[i].width && n >= v[i].y && n <= v[i].y + v[i].height) {
+
+                v[i].width = 80;
+                v[i].height = 80;
+
+
+
+
+
+            }
+        }
+
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                selectscreen = false;
+                startgame = false;
+            } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+                for (int i = 0; i < 6; i++) {
+                    if (m >= v[i].x && m <= v[i].x + v[i].width && n >= v[i].y && n <= v[i].y + v[i].height) {
+                        selectscreen = false;
+                        startgame = true;
+                        selected = "duck" + to_string(i) + ".png";
+                    }
+                }
+            }
+        }
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, selecttexture, NULL, NULL);
+
+        for (int i = 0; i < 6; i++) {
+            SDL_Rect nv = {v[i].x, v[i].y, v[i].width, v[i].height};
+            SDL_RenderCopy(renderer, nvtextures[i], NULL, &nv);
+        }
+
+        SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyTexture(selecttexture);
+    for (int i = 0; i < 6; i++) {
+        SDL_DestroyTexture(nvtextures[i]);
+    }
+    return selected;
+}
 int main(int argc, char* argv[]) {
-    if (!init() || !loadanh()) {
+    if (!init()) {
         return -1;
     }
 
@@ -254,8 +327,10 @@ int main(int argc, char* argv[]) {
     }
     bool hardmode = false ;
     bool startGame = false;
-    drawmenu(startGame,hardmode);
-
+    bool selectscreen = false ;
+    drawmenu(selectscreen,hardmode);
+    string selected = selectnv(startGame);
+    loadanh(selected);
     if (!startGame) {
         close();
         return 0;
