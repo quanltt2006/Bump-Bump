@@ -5,6 +5,7 @@
 #include <SDL_ttf.h>
 #include <string>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 const int mh_rong = 500;
@@ -31,6 +32,24 @@ struct Skull {
 
 vector<cnv> cnvs;
 vector<Skull> skulls;
+int loadhighscore() {
+int highscore = 0 ;
+ifstream file ("highscore.txt");
+if(file.is_open()) {
+    file >> highscore;
+    file.close();
+}
+return highscore;
+
+
+
+}
+void savehighscore(int highscore) {
+ofstream file ("highscore.txt");
+if (file.is_open()) { file << highscore ;
+file.close();
+}
+}
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         cout << "ERROR" << SDL_GetError() << std::endl;
@@ -320,7 +339,7 @@ int main(int argc, char* argv[]) {
     Mix_Chunk* amthanh1 = Mix_LoadWAV("beep.wav");
     Mix_Chunk* amthanh2 = Mix_LoadWAV("bye.mp3");
 
-    TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 32);
+    TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 20);
     if (!ourfont) {
         cout << "Error" << TTF_GetError() << std::endl;
         return -1;
@@ -353,8 +372,9 @@ int main(int argc, char* argv[]) {
     bool gameOver = false;
     int gameOverRectY = mh_cao;
     bool gameStarted = false;
-    int cnvtocdo = 5;
+    int cnvtocdo = 10;
     int cnvtocdo1 = 2;
+    int highscore = loadhighscore();
 
 while (!quit) {
     Uint32 currentTime = SDL_GetTicks();
@@ -374,6 +394,8 @@ while (!quit) {
                     taocnvs(hardmode);
                     if (hardmode) {taoskulls();}
                     gameStarted = false ;
+
+
                 } else if (!gameStarted) {
                     gameStarted = true;
                     vitVelY = JUMP_STRENGTH;
@@ -415,12 +437,13 @@ while (!quit) {
             vitVelY = 0;
         }
         if(hardmode) {
-          for (auto& cnv : cnvs) {
-                    cnv.y += cnvtocdo;
-                    if (cnv.y <= 0 || cnv.y + cnv.height >= mh_cao) {
+                    cnvs[0].y += cnvtocdo;
+                                        cnvs[1].y += cnvtocdo;
+
+                    if (cnvs[0].y < 0 || cnvs[0].y + cnvs[0].height > mh_cao) {
                         cnvtocdo = -cnvtocdo;
                     }
-                }
+
 
                 for (auto& skull : skulls) {
                     skull.x += cnvtocdo1;
@@ -457,6 +480,12 @@ while (!quit) {
             if (hardmode) {cnvs.clear();
                             skulls.clear();}
 
+
+        if (score > highscore) {
+            highscore = score;
+            savehighscore(score);
+        }
+
         }
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
@@ -480,11 +509,17 @@ while (!quit) {
     string scoreText = "Score: " + to_string(score);
     SDL_Surface* scoreSurface = TTF_RenderText_Solid(ourfont, scoreText.c_str(), {255, 255, 255});
     SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
-    SDL_Rect scoreRect = {170, 20, scoreSurface->w, scoreSurface->h};
+    SDL_Rect scoreRect = {50, 20, scoreSurface->w, scoreSurface->h};
     SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
     SDL_FreeSurface(scoreSurface);
     SDL_DestroyTexture(scoreTexture);
-
+    string highscoreText = "MAX: " + to_string(highscore);
+    SDL_Surface* highscoreSurface = TTF_RenderText_Solid(ourfont, highscoreText.c_str(), {255, 255, 255});
+    SDL_Texture* highscoreTexture = SDL_CreateTextureFromSurface(renderer, highscoreSurface);
+    SDL_Rect highscoreRect = {200, 20 , highscoreSurface->w, highscoreSurface->h};
+    SDL_RenderCopy(renderer, highscoreTexture, NULL, &highscoreRect);
+    SDL_FreeSurface(highscoreSurface);
+    SDL_DestroyTexture(highscoreTexture);
     if (gameOver) {
         Mix_PlayChannel(-1, amthanh2, 0);
 
@@ -506,10 +541,7 @@ while (!quit) {
         SDL_Rect replayTextRect = {mh_rong / 2 - 200 , gameOverRectY + 60, replaySurface->w, replaySurface->h};
         SDL_RenderCopy(renderer, replayTexture, NULL, &replayTextRect);
 
-        SDL_FreeSurface(gameOverSurface);
-        SDL_DestroyTexture(gameOverTexture);
-        SDL_FreeSurface(replaySurface);
-        SDL_DestroyTexture(replayTexture);
+
     }
 
     SDL_RenderPresent(renderer);
@@ -524,7 +556,5 @@ while (!quit) {
     Mix_FreeChunk(amthanh2);
 
     Mix_CloseAudio();
-    close();
-    cout << score;
-    return 0;
+return 0;
 }

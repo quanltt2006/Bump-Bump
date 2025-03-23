@@ -477,7 +477,7 @@
 1739249264 source:d:\ltnc\week1\hihi.cpp
 	<iostream>
 
-1742303653 source:c:\users\admin\onedrive\desktop\new folder\game\main.cpp
+1742633322 source:c:\users\admin\onedrive\desktop\new folder\game\main.cpp
 	<SDL.h>
 	<SDL_image.h>
 	<iostream>
@@ -485,4 +485,5 @@
 	<SDL_ttf.h>
 	<string>
 	<vector>
+	<fstream>
 
