@@ -185,8 +185,13 @@ void drawmenu(bool& startGame, bool& isHardMode) {
         Mix_PlayChannel(-1, menuSound, 0);
     }
 
+<<<<<<< HEAD
     SDL_Surface* speakerOnSurface = IMG_Load("loa.png");
     SDL_Surface* speakerOffSurface = IMG_Load("loa.png"); 
+=======
+    SDL_Surface* speakerOnSurface = IMG_Load("on.png");
+    SDL_Surface* speakerOffSurface = IMG_Load("off.png");
+>>>>>>> 2e27c02 (Cập nhật code mới)
     SDL_Texture* speakerOnTexture = SDL_CreateTextureFromSurface(renderer, speakerOnSurface);
     SDL_Texture* speakerOffTexture = SDL_CreateTextureFromSurface(renderer, speakerOffSurface);
     SDL_FreeSurface(speakerOnSurface);
@@ -230,6 +235,7 @@ void drawmenu(bool& startGame, bool& isHardMode) {
             if (e.type == SDL_QUIT) {
                 inMenu = false;
                 startGame = false;
+                close();
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {
                 if (x >= speakerX && x <= speakerX + speakerSize &&
                     y >= speakerY && y <= speakerY + speakerSize) {
@@ -380,7 +386,7 @@ int main(int argc, char* argv[]) {
     Mix_Chunk* amthanh1 = Mix_LoadWAV("beep.wav");
     Mix_Chunk* amthanh2 = Mix_LoadWAV("bye.mp3");
 
-    TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 20);
+    TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 10 );
     if (!ourfont) {
         cout << "Error" << TTF_GetError() << std::endl;
         return -1;
@@ -414,13 +420,13 @@ int main(int argc, char* argv[]) {
     int gameOverRectY = mh_cao;
     bool gameStarted = false;
     int cnvtocdo = 10;
-    int cnvtocdo1 = 2;
+    int cnvtocdo1 = 3;
     int highscore = loadhighscore();
 bool isPaused = false;
 
 while (!quit) {
     Uint32 currentTime = SDL_GetTicks();
-    SDL_Rect pauseButtonRect = {mh_rong - 80, 20, 60, 60};
+    SDL_Rect pauseButtonRect = {mh_rong - 80, 20, 40, 40};
 
 int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -561,7 +567,7 @@ int mouseX, mouseY;
             SDL_RenderDrawRect(renderer, &skullRect);
         }
 }
-    if (!gameOver && gameStarted && pauseButtonTexture != nullptr) {
+    if (!gameOver && gameStarted) {
 
         if (isPauseHovered) {
         SDL_Rect hoverRect = {
