@@ -20,7 +20,7 @@ Cách chơi game đơn giản: ấn nút space để nhảy nhằm không chạm
   - [Hướng dẫn làm game Flappy Bird trên CodeLearn](https://codelearn.io/sharing/lam-game-flappy-bird-voi-pygame)  
 - Hàm nhân vật di chuyển, màn hình di chuyển, âm thanh, hình ảnh, font chữ,...  
   - [Tài liệu tham khảo trên Google Docs](https://docs.google.com/document/d/1FZ3jTqHxtyZznNWiJmmve0zYu_aSIuQLP2OScmdehQ/edit?tab=t.0#heading=h.g69r5ua9lzeh)  
-
+  - Youtube: https://www.youtube.com/watch?v=QM4WW8hcsPU&list=PLvv0ScY6vfd-p1gSnbQhY7vMe2rng0IL0
 ## 5. Đồ họa:  
 - Ảnh nhân vật được lấy từ Google, ảnh menu tự vẽ  
 - Âm thanh và font chữ: YouTube  
