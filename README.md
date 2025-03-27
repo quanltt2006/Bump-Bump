@@ -14,29 +14,29 @@
 https://codelearn.io/sharing/lam-game-flappy-bird-voi-pygame
 •	Hàm nhân vật di chuyển, màn hình di chuyển, âm thanh, hình ảnh, font chữ,..: https://docs.google.com/document/d/1FZ3jTqHxtyZznNWiJmmve0zYu_aSliUqLP2OsMcdehQ/edit?tab=t.0#heading=h.g69r5ua9lzeh (tự làm)
 •	Đồ hoa: Ảnh nhân vật được lấy từ google, ảnh menu tự vẽ
-•	-Âm thanh và font chữ: youtube 
+•	Âm thanh và font chữ: youtube 
 
 
 
 *Checklisk: 
-Dùng các lệnh vẽ hình: có (SDL_RenderCopyEx)
-Texture: có
-Background: có
-Event bàn phím: có 
-Event chuột: có
-Animation (hoạt hình) có (chướng ngại vật di chuyển)
-Xử lý va chạm: có
-Score (có tính điểm): có (lưu trong file highscore)
-Lưu bảng điểm: có
-Sound: có (trong main)
-Sound on off: có
-Background music: có
-Font: có 
-Menu: có (trong hàm drawmenu)
-Pause/Resume: có
-Status bar / lives (mạng/máu...): không
-Các điểm nổi bật khác: chọn các nhân vật khác nhau, 2 chế độ chơi
-Code viết dễ đọc (gv đánh giá)
-Hiểu rõ code (gv đánh giá)
+	Dùng các lệnh vẽ hình: có (SDL_RenderCopyEx)
+	Texture: có
+	Background: có
+	Event bàn phím: có 
+	Event chuột: có
+	Animation (hoạt hình) có (chướng ngại vật di chuyển)
+	Xử lý va chạm: có
+	Score (có tính điểm): có (lưu trong file highscore)
+	Lưu bảng điểm: có
+	Sound: có (trong main)
+	Sound on off: có
+	Background music: có
+	Font: có 
+	Menu: có (trong hàm drawmenu)
+	Pause/Resume: có
+	Status bar / lives (mạng/máu...): không
+	Các điểm nổi bật khác: chọn các nhân vật khác nhau, 2 chế độ chơi
+	Code viết dễ đọc (gv đánh giá)
+	Hiểu rõ code (gv đánh giá)
 
 
