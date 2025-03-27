@@ -2,7 +2,8 @@
  
 	Tên: Đỗ Hồng Quân Mã SV: 24021602
 
-* Game: Geomeotry Dash Meltdown Remake. Đây là một game dựa trên ý tưởng chuyển động của Flappy Bird, nhưng có thay đổi về cách các chướng ngại vật hoạt động. Cách chơi game đơn giản: ấn nút space để nhảy nhắm không chạm vào các chướng ngại vật.
+* Game: BUMP BUMP
+* Đây là một game dựa trên ý tưởng chuyển động của Flappy Bird, nhưng có thay đổi về cách các chướng ngại vật hoạt động. Cách chơi game đơn giản: ấn nút space để nhảy nhắm không chạm vào các chướng ngại vật.
 
 
 
