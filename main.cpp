@@ -180,14 +180,13 @@ void drawmenu(bool& startGame, bool& isHardMode) {
     SDL_Surface* menusurface = IMG_Load("menu.jpg");
     SDL_Texture* menuTexture = SDL_CreateTextureFromSurface(renderer, menusurface);
 
-    // Load sound
     Mix_Chunk* menuSound = Mix_LoadWAV("amthanh.mp3");
     if (menuSound && soundOn) {
         Mix_PlayChannel(-1, menuSound, 0);
     }
 
     SDL_Surface* speakerOnSurface = IMG_Load("loa.png");
-    SDL_Surface* speakerOffSurface = IMG_Load("loa.png"); // You'll need an "off" version
+    SDL_Surface* speakerOffSurface = IMG_Load("loa.png"); 
     SDL_Texture* speakerOnTexture = SDL_CreateTextureFromSurface(renderer, speakerOnSurface);
     SDL_Texture* speakerOffTexture = SDL_CreateTextureFromSurface(renderer, speakerOffSurface);
     SDL_FreeSurface(speakerOnSurface);
