@@ -23,6 +23,7 @@ SDL_Texture* texture = nullptr;
 SDL_Texture* cnvTexture = nullptr;
 SDL_Texture* skullTexture = nullptr;
 SDL_Texture* pauseButtonTexture = nullptr;
+SDL_Texture* backButtonTexture = nullptr;
 
 struct cnv {
     int x, y, width, height;
@@ -89,13 +90,16 @@ bool loadanh(string s ) {
 
     cnvTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
-            SDL_Surface* surface1 = IMG_Load("skull.png");
+    surface = IMG_Load("skull.png");
 
-    skullTexture = SDL_CreateTextureFromSurface(renderer, surface1);
-        SDL_FreeSurface(surface1);
-    SDL_Surface* surface2 = IMG_Load("pause.png");
-pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface2);
-        SDL_FreeSurface(surface2);
+    skullTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    surface = IMG_Load("pause.png");
+pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+surface = IMG_Load("back.png");
+backButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
 
     return true;
 }
@@ -103,6 +107,10 @@ pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface2);
 void close() {
     SDL_DestroyTexture(texture);
     SDL_DestroyTexture(cnvTexture);
+    SDL_DestroyTexture(skullTexture);
+    SDL_DestroyTexture(backButtonTexture);
+    SDL_DestroyTexture(pauseButtonTexture);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
@@ -122,9 +130,8 @@ skulls.clear();
 
 }
 
-void taocnvs( bool kt ) {
+void taocnvs( bool kt , bool flipped) {
     if (!kt) {
-
     cnvs.clear();
 
 const int MIN_GAP = 100 ;
@@ -135,29 +142,37 @@ const int MIN_HEIGHT_MID = 100;
 const int MAX_HEIGHT_MID = 200;
 
 int topHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
-cnv leftTop = {0, 0, cnv_rong, topHeight};
-cnv rightTop = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
 
 int bottomHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
 int bottomY = mh_cao - bottomHeight;
-cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
-cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
-
-cnvs.push_back(leftTop);
-cnvs.push_back(rightTop);
-cnvs.push_back(leftBottom);
-cnvs.push_back(rightBottom);
-
 int midHeight = MIN_HEIGHT_MID + rand() % (MAX_HEIGHT_MID - MIN_HEIGHT_MID + 1);
 int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - MIN_GAP - midHeight);
+if (!flipped) {
+        cnv rightTop = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
+cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
+cnvs.push_back(rightBottom);
 
+cnvs.push_back(rightTop);
 if (rand() % 2 == 0) {
+
+
     cnv rightMid = {mh_rong - cnv_rong, midY, cnv_rong, midHeight};
     cnvs.push_back(rightMid);
+}
 } else {
+    cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
+    cnv leftTop = {0, 0, cnv_rong, topHeight};
+
+cnvs.push_back(leftBottom);
+cnvs.push_back(leftTop);
+if (rand() % 2 == 0) {
     cnv leftMid = {0, midY, cnv_rong, midHeight};
     cnvs.push_back(leftMid);
 }
+}
+
+
+
     }
 else {    cnvs.clear();
 
@@ -185,13 +200,10 @@ void drawmenu(bool& startGame, bool& isHardMode) {
         Mix_PlayChannel(-1, menuSound, 0);
     }
 
-<<<<<<< HEAD
-    SDL_Surface* speakerOnSurface = IMG_Load("loa.png");
-    SDL_Surface* speakerOffSurface = IMG_Load("loa.png"); 
-=======
+
+
     SDL_Surface* speakerOnSurface = IMG_Load("on.png");
     SDL_Surface* speakerOffSurface = IMG_Load("off.png");
->>>>>>> 2e27c02 (Cập nhật code mới)
     SDL_Texture* speakerOnTexture = SDL_CreateTextureFromSurface(renderer, speakerOnSurface);
     SDL_Texture* speakerOffTexture = SDL_CreateTextureFromSurface(renderer, speakerOffSurface);
     SDL_FreeSurface(speakerOnSurface);
@@ -376,6 +388,25 @@ string selectnv(bool &startgame) {
     }
     return selected;
 }
+void gameoverscreen(int& gameOverRectY, TTF_Font* ourfont) {
+ SDL_Rect gameOverRect = {mh_rong / 2 - 100, gameOverRectY, 200, 100};
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &gameOverRect);
+
+        SDL_Surface* gameOverSurface = TTF_RenderText_Solid(ourfont, "Game Over", {255, 255, 255});
+        SDL_Texture* gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
+        SDL_Rect gameOverTextRect = {mh_rong / 2 - 50, gameOverRectY + 20, gameOverSurface->w, gameOverSurface->h};
+        SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverTextRect);
+
+        SDL_Surface* replaySurface = TTF_RenderText_Solid(ourfont, "Press SPACE to replay", {255, 255,255});
+        SDL_Texture* replayTexture = SDL_CreateTextureFromSurface(renderer, replaySurface);
+        SDL_Rect replayTextRect = {mh_rong / 2 - 100 , gameOverRectY + 60, replaySurface->w, replaySurface->h};
+        SDL_RenderCopy(renderer, replayTexture, NULL, &replayTextRect);
+        SDL_DestroyTexture(gameOverTexture);
+        SDL_DestroyTexture(replayTexture);
+
+
+}
 int main(int argc, char* argv[]) {
     if (!init()) {
         return -1;
@@ -412,8 +443,8 @@ int main(int argc, char* argv[]) {
 
     bool flipped = false;
 
-    taocnvs(hardmode);
-
+    taocnvs(hardmode,flipped);
+    taoskulls();
     Uint32 lastPassedTime = 0;
     int score = 0;
     bool gameOver = false;
@@ -427,15 +458,21 @@ bool isPaused = false;
 while (!quit) {
     Uint32 currentTime = SDL_GetTicks();
     SDL_Rect pauseButtonRect = {mh_rong - 80, 20, 40, 40};
+    SDL_Rect backButtonRect = {mh_rong/2   ,300, 40, 40};
 
 int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     bool isPauseHovered = (mouseX >= pauseButtonRect.x && mouseX <= pauseButtonRect.x + pauseButtonRect.w &&
                           mouseY >= pauseButtonRect.y && mouseY <= pauseButtonRect.y + pauseButtonRect.h);
+
+     bool isBackHovered = (mouseX >= backButtonRect.x && mouseX <= backButtonRect.x + backButtonRect.w &&
+                         mouseY >= backButtonRect.y && mouseY <= backButtonRect.y + backButtonRect.h);
+
+
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
             quit = true;
-        } else if (e.type == SDL_MOUSEBUTTONDOWN && !gameOver && gameStarted) {
+        } else if (e.type == SDL_MOUSEBUTTONDOWN ) {
             if (isPauseHovered) {
                 isPaused = !isPaused;
                 if (isPaused) {
@@ -444,6 +481,30 @@ int mouseX, mouseY;
                     Mix_Resume(-1);
                 }
             }
+         if (isBackHovered) {
+                // Đổi chế độ chơi
+                hardmode = !hardmode;
+                Mix_PlayChannel(-1, amthanh, 0);
+
+                // Reset game state
+                vitX = mh_rong / 2;
+                vitY = mh_cao / 2;
+                vitVelY = 0;
+                score = 0;
+                taocnvs(hardmode, flipped);
+                if (hardmode) {
+                    taoskulls();
+                } else {
+                    skulls.clear(); // Xóa skulls nếu chuyển sang easy mode
+                }
+                gameStarted = false;
+                gameOver = false;
+            }
+
+
+
+
+
         }
         else if (e.type == SDL_KEYDOWN) {
             if (e.key.keysym.sym == SDLK_SPACE) {
@@ -454,7 +515,7 @@ int mouseX, mouseY;
                     vitY = mh_cao / 2;
                     vitVelY = 0;
                     score = 0;
-                    taocnvs(hardmode);
+                    taocnvs(hardmode,flipped);
                     if (hardmode) {taoskulls();}
                     gameStarted = false ;
 
@@ -488,7 +549,7 @@ int mouseX, mouseY;
         if (lastPassedTime > 0 && SDL_GetTicks() - lastPassedTime >= 500) {
             lastPassedTime = 0;
             if (!hardmode) {
-                taocnvs(hardmode);
+                taocnvs(hardmode,flipped);
             }
         }
 
@@ -501,7 +562,7 @@ int mouseX, mouseY;
         }
         if(hardmode) {
                     cnvs[0].y += cnvtocdo;
-                                        cnvs[1].y += cnvtocdo;
+                    cnvs[1].y += cnvtocdo;
 
                     if (cnvs[0].y < 0 || cnvs[0].y + cnvs[0].height > mh_cao) {
                         cnvtocdo = -cnvtocdo;
@@ -590,8 +651,12 @@ int mouseX, mouseY;
         SDL_FreeSurface(pausedSurface);
         SDL_DestroyTexture(pausedTexture);
     }
-}
 
+
+
+
+
+    }
     string scoreText = "Score: " + to_string(score);
     SDL_Surface* scoreSurface = TTF_RenderText_Solid(ourfont, scoreText.c_str(), {255, 255, 255});
     SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
@@ -612,20 +677,18 @@ int mouseX, mouseY;
         if (gameOverRectY > mh_cao / 2 - 50) {
             gameOverRectY -= 15;
         }
-
-        SDL_Rect gameOverRect = {mh_rong / 2 - 100, gameOverRectY, 200, 100};
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-                SDL_RenderFillRect(renderer, &gameOverRect);
-
-        SDL_Surface* gameOverSurface = TTF_RenderText_Solid(ourfont, "Game Over", {255, 255, 255});
-        SDL_Texture* gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
-        SDL_Rect gameOverTextRect = {mh_rong / 2 - 50, gameOverRectY + 20, gameOverSurface->w, gameOverSurface->h};
-        SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverTextRect);
-
-        SDL_Surface* replaySurface = TTF_RenderText_Solid(ourfont, "Press SPACE to replay", {255, 255,255});
-        SDL_Texture* replayTexture = SDL_CreateTextureFromSurface(renderer, replaySurface);
-        SDL_Rect replayTextRect = {mh_rong / 2 - 100 , gameOverRectY + 60, replaySurface->w, replaySurface->h};
-        SDL_RenderCopy(renderer, replayTexture, NULL, &replayTextRect);
+    gameoverscreen(gameOverRectY,ourfont);
+    if (isBackHovered) {
+            SDL_Rect hoverBackRect = {
+                backButtonRect.x - 5,
+                backButtonRect.y - 5,
+                backButtonRect.w + 10,
+                backButtonRect.h + 10
+            };
+            SDL_RenderCopy(renderer, backButtonTexture, NULL, &hoverBackRect);
+        } else {
+            SDL_RenderCopy(renderer, backButtonTexture, NULL, &backButtonRect);
+        }
 
 
     }
@@ -634,8 +697,7 @@ int mouseX, mouseY;
 
     SDL_Delay(16);
 }
-
-
+    close();
     TTF_CloseFont(ourfont);
     Mix_FreeChunk(amthanh);
     Mix_FreeChunk(amthanh1);
