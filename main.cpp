@@ -35,22 +35,19 @@ struct Skull {
 vector<cnv> cnvs;
 vector<Skull> skulls;
 int loadhighscore() {
-int highscore = 0 ;
-ifstream file ("highscore.txt");
-if(file.is_open()) {
-    file >> highscore;
-    file.close();
-}
-return highscore;
-
-
-
+    int highscore = 0 ;
+    ifstream file ("highscore.txt");
+    if(file.is_open()) {
+        file >> highscore;
+        file.close();
+    }
+    return highscore;
 }
 void savehighscore(int highscore) {
-ofstream file ("highscore.txt");
-if (file.is_open()) { file << highscore ;
-file.close();
-}
+    ofstream file ("highscore.txt");
+    if (file.is_open()) { file << highscore ;
+    file.close();
+    }
 }
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -93,13 +90,13 @@ bool loadanh(string s ) {
     surface = IMG_Load("skull.png");
 
     skullTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
+    SDL_FreeSurface(surface);
     surface = IMG_Load("pause.png");
-pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-surface = IMG_Load("back.png");
-backButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
+    pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    surface = IMG_Load("back.png");
+    backButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
 
     return true;
 }
@@ -119,72 +116,62 @@ void close() {
 }
 
 void taoskulls() {
-skulls.clear();
+    skulls.clear();
     Skull skull1 = {0, 100 , 40 , 40 };
     Skull skull2 = {0, 800 , 40 , 40 };
     skulls.push_back(skull1);
     skulls.push_back(skull2);
-
-
-
-
 }
 
 void taocnvs( bool kt , bool flipped) {
     if (!kt) {
     cnvs.clear();
 
-const int MIN_GAP = 100 ;
-const int MAX_HEIGHT = mh_cao / 3;
-const int MIN_HEIGHT_EDGE = 250;
-const int MAX_HEIGHT_EDGE = 300;
-const int MIN_HEIGHT_MID = 100;
-const int MAX_HEIGHT_MID = 200;
+    const int MIN_GAP = 100 ;
+    const int MIN_HEIGHT_EDGE = 250;
+    const int MAX_HEIGHT_EDGE = 300;
+    const int MIN_HEIGHT_MID = 100;
+    const int MAX_HEIGHT_MID = 200;
 
-int topHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
+    int topHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
 
-int bottomHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
-int bottomY = mh_cao - bottomHeight;
-int midHeight = MIN_HEIGHT_MID + rand() % (MAX_HEIGHT_MID - MIN_HEIGHT_MID + 1);
-int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - MIN_GAP - midHeight);
-if (!flipped) {
+    int bottomHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
+    int bottomY = mh_cao - bottomHeight;
+    int midHeight = MIN_HEIGHT_MID + rand() % (MAX_HEIGHT_MID - MIN_HEIGHT_MID + 1);
+    int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - MIN_GAP - midHeight);
+    if (!flipped) {
         cnv rightTop = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
-cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
-cnvs.push_back(rightBottom);
+        cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
+        cnvs.push_back(rightBottom);
 
-cnvs.push_back(rightTop);
-if (rand() % 2 == 0) {
-
-
-    cnv rightMid = {mh_rong - cnv_rong, midY, cnv_rong, midHeight};
-    cnvs.push_back(rightMid);
+        cnvs.push_back(rightTop);
+        if (rand() % 2 == 0) {
+            cnv rightMid = {mh_rong - cnv_rong, midY, cnv_rong, midHeight};
+            cnvs.push_back(rightMid);
 }
 } else {
-    cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
-    cnv leftTop = {0, 0, cnv_rong, topHeight};
+        cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
+        cnv leftTop = {0, 0, cnv_rong, topHeight};
 
-cnvs.push_back(leftBottom);
-cnvs.push_back(leftTop);
-if (rand() % 2 == 0) {
-    cnv leftMid = {0, midY, cnv_rong, midHeight};
-    cnvs.push_back(leftMid);
-}
-}
-
-
-
+        cnvs.push_back(leftBottom);
+        cnvs.push_back(leftTop);
+        if (rand() % 2 == 0) {
+            cnv leftMid = {0, midY, cnv_rong, midHeight};
+            cnvs.push_back(leftMid);
+            }
+        }
     }
-else {    cnvs.clear();
+else {   cnvs.clear();
 
-            const int MIN_GAP = 200;
-    const int MAX_HEIGHT = mh_cao / 3;
+        const int MIN_GAP = 200;
+        const int MAX_HEIGHT = mh_cao / 3;
 
-    int topHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
-    cnv left = {0, 0, cnv_rong, topHeight};
-    cnv right = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
+        int topHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
+        cnv left = {0, 0, cnv_rong, topHeight};
+        cnv right = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
 
-    cnvs.push_back(left);
-    cnvs.push_back(right);
+        cnvs.push_back(left);
+        cnvs.push_back(right);
 
 }
 }
@@ -314,7 +301,7 @@ void drawmenu(bool& startGame, bool& isHardMode) {
 bool check_vacham(SDL_Rect a, SDL_Rect b) {
     return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
 }
-string selectnv(bool &startgame) {
+string selectnvscreen(bool &startgame) {
 
     SDL_Event e;
     bool selectscreen = true;
@@ -426,7 +413,7 @@ int main(int argc, char* argv[]) {
     bool startGame = false;
     bool selectscreen = false ;
     drawmenu(selectscreen,hardmode);
-    string selected = selectnv(startGame);
+    string selected = selectnvscreen(startGame);
     loadanh(selected);
     if (!startGame) {
         close();
@@ -453,85 +440,78 @@ int main(int argc, char* argv[]) {
     int cnvtocdo = 10;
     int cnvtocdo1 = 3;
     int highscore = loadhighscore();
-bool isPaused = false;
+    bool isPaused = false;
+
+
 
 while (!quit) {
-    Uint32 currentTime = SDL_GetTicks();
     SDL_Rect pauseButtonRect = {mh_rong - 80, 20, 40, 40};
-    SDL_Rect backButtonRect = {mh_rong/2   ,300, 40, 40};
+    SDL_Rect backButtonRect = {mh_rong/2 - 30   ,400, 40, 40};
 
-int mouseX, mouseY;
+    int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     bool isPauseHovered = (mouseX >= pauseButtonRect.x && mouseX <= pauseButtonRect.x + pauseButtonRect.w &&
                           mouseY >= pauseButtonRect.y && mouseY <= pauseButtonRect.y + pauseButtonRect.h);
 
-     bool isBackHovered = (mouseX >= backButtonRect.x && mouseX <= backButtonRect.x + backButtonRect.w &&
+    bool isBackHovered = (mouseX >= backButtonRect.x && mouseX <= backButtonRect.x + backButtonRect.w &&
                          mouseY >= backButtonRect.y && mouseY <= backButtonRect.y + backButtonRect.h);
+
 
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
             quit = true;
-        } else if (e.type == SDL_MOUSEBUTTONDOWN ) {
+        }
+        else if (e.type == SDL_MOUSEBUTTONDOWN) {
             if (isPauseHovered) {
                 isPaused = !isPaused;
-                if (isPaused) {
-                    Mix_Pause(-1);
-                } else {
-                    Mix_Resume(-1);
-                }
+                isPaused ? Mix_Pause(-1) : Mix_Resume(-1);
             }
-         if (isBackHovered) {
-                // Đổi chế độ chơi
+
+            if (isBackHovered) {
                 hardmode = !hardmode;
                 Mix_PlayChannel(-1, amthanh, 0);
 
-                // Reset game state
                 vitX = mh_rong / 2;
                 vitY = mh_cao / 2;
                 vitVelY = 0;
                 score = 0;
+
                 taocnvs(hardmode, flipped);
-                if (hardmode) {
-                    taoskulls();
-                } else {
-                    skulls.clear(); // Xóa skulls nếu chuyển sang easy mode
-                }
+                hardmode ? taoskulls() : skulls.clear();
+
                 gameStarted = false;
                 gameOver = false;
             }
-
-
-
-
-
         }
-        else if (e.type == SDL_KEYDOWN) {
-            if (e.key.keysym.sym == SDLK_SPACE) {
-                if (gameOver) {
-                    gameOver = false;
-                    gameOverRectY = mh_cao;
-                    vitX = mh_rong / 2;
-                    vitY = mh_cao / 2;
-                    vitVelY = 0;
-                    score = 0;
-                    taocnvs(hardmode,flipped);
-                    if (hardmode) {taoskulls();}
-                    gameStarted = false ;
+        else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE) {
+            if (gameOver) {
+                gameOver = false;
+                gameOverRectY = mh_cao;
 
+                vitX = mh_rong / 2;
+                vitY = mh_cao / 2;
+                vitVelY = 0;
+                score = 0;
 
-                } else if (!gameStarted) {
-                    gameStarted = true;
-                    vitVelY = JUMP_STRENGTH;
-                    Mix_PlayChannel(-1, amthanh, 0);
-                }
-            else {vitVelY = JUMP_STRENGTH;
-                    Mix_PlayChannel(-1, amthanh, 0);
+                taocnvs(hardmode, flipped);
+                if (hardmode) taoskulls();
 
+                gameStarted = false;
             }
+            else if (!gameStarted) {
+                gameStarted = true;
+                vitVelY = JUMP_STRENGTH;
+                Mix_PlayChannel(-1, amthanh, 0);
+            }
+            else {
+                vitVelY = JUMP_STRENGTH;
+                Mix_PlayChannel(-1, amthanh, 0);
             }
         }
     }
+
+
 
     if (!isPaused && !gameOver && gameStarted) {
         vitVelY += GRAVITY;
@@ -549,7 +529,7 @@ int mouseX, mouseY;
         if (lastPassedTime > 0 && SDL_GetTicks() - lastPassedTime >= 500) {
             lastPassedTime = 0;
             if (!hardmode) {
-                taocnvs(hardmode,flipped);
+                taocnvs(hardmode, flipped);
             }
         }
 
@@ -560,26 +540,23 @@ int mouseX, mouseY;
             vitY = mh_cao - vit_SIZE;
             vitVelY = 0;
         }
-        if(hardmode) {
-                    cnvs[0].y += cnvtocdo;
-                    cnvs[1].y += cnvtocdo;
 
-                    if (cnvs[0].y < 0 || cnvs[0].y + cnvs[0].height > mh_cao) {
-                        cnvtocdo = -cnvtocdo;
-                    }
+        if (hardmode) {
+            cnvs[0].y += cnvtocdo;
+            cnvs[1].y += cnvtocdo;
 
+            if (cnvs[0].y < 0 || cnvs[0].y + cnvs[0].height > mh_cao) {
+                cnvtocdo = -cnvtocdo;
+            }
 
-                for (auto& skull : skulls) {
-                    skull.x += cnvtocdo1;
-                    if (skull.x <= 0 || skull.x + skull.width >= mh_rong) {
-                        cnvtocdo1 = -cnvtocdo1;
-                    }
+            for (auto& skull : skulls) {
+                skull.x += cnvtocdo1;
+                if (skull.x <= 0 || skull.x + skull.width >= mh_rong) {
+                    cnvtocdo1 = -cnvtocdo1;
                 }
-
-
-
-
+            }
         }
+
         SDL_Rect vitRect = {vitX, vitY, vit_SIZE, vit_SIZE};
         for (auto& cnv : cnvs) {
             SDL_Rect cnvRect = {cnv.x, cnv.y, cnv.width, cnv.height};
@@ -587,29 +564,17 @@ int mouseX, mouseY;
                 gameOver = true;
             }
         }
-    if(hardmode) {
-        for (auto &skull : skulls) {
-                            SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
-                            if(check_vacham(skullRect,vitRect)) {
-                                gameOver = true;
-                            }
 
+        if (hardmode) {
+            for (auto &skull : skulls) {
+                SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
+                if (check_vacham(skullRect, vitRect)) {
+                    gameOver = true;
+                }
+            }
         }
-
-
     }
-    }
-        if (gameOver) {
-            gameStarted = false;
 
-
-
-        if (score > highscore) {
-            highscore = score;
-            savehighscore(score);
-        }
-
-        }
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
     SDL_RenderClear(renderer);
@@ -621,42 +586,64 @@ int mouseX, mouseY;
         SDL_Rect cnvRect = {cnv.x, cnv.y, cnv.width, cnv.height};
         SDL_RenderCopy(renderer, cnvTexture, NULL, &cnvRect);
     }
+
     if (hardmode) {
         for (auto& skull : skulls) {
             SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
             SDL_RenderCopy(renderer, skullTexture, NULL, &skullRect);
             SDL_RenderDrawRect(renderer, &skullRect);
         }
-}
+    }
+
+
     if (!gameOver && gameStarted) {
+        SDL_Rect pauseRect = isPauseHovered ? SDL_Rect{pauseButtonRect.x - 5, pauseButtonRect.y - 5, pauseButtonRect.w + 10, pauseButtonRect.h + 10} : pauseButtonRect;
+        SDL_RenderCopy(renderer, pauseButtonTexture, NULL, &pauseRect);
 
-        if (isPauseHovered) {
-        SDL_Rect hoverRect = {
-            pauseButtonRect.x - 5,
-            pauseButtonRect.y - 5,
-            pauseButtonRect.w + 10,
-            pauseButtonRect.h + 10
-        };
-        SDL_RenderCopy(renderer, pauseButtonTexture, NULL, &hoverRect);
-    } else {
-        SDL_RenderCopy(renderer, pauseButtonTexture, NULL, &pauseButtonRect);
-    }
-
-    if (isPaused) {
-        SDL_Surface* pausedSurface = TTF_RenderText_Solid(ourfont, "PAUSED", {255, 255, 255});
-        SDL_Texture* pausedTexture = SDL_CreateTextureFromSurface(renderer, pausedSurface);
-        SDL_Rect pausedRect = {mh_rong/2 - pausedSurface->w/2, mh_cao/2 - pausedSurface->h/2,
-                              pausedSurface->w, pausedSurface->h};
-        SDL_RenderCopy(renderer, pausedTexture, NULL, &pausedRect);
-        SDL_FreeSurface(pausedSurface);
-        SDL_DestroyTexture(pausedTexture);
+        if (isPaused) {
+            SDL_Surface* pausedSurface = TTF_RenderText_Solid(ourfont, "PAUSED", {255, 255, 255});
+            SDL_Texture* pausedTexture = SDL_CreateTextureFromSurface(renderer, pausedSurface);
+            SDL_Rect pausedRect = {
+                mh_rong / 2 - pausedSurface->w / 2,
+                mh_cao / 2 - pausedSurface->h / 2,
+                pausedSurface->w,
+                pausedSurface->h
+            };
+            SDL_RenderCopy(renderer, pausedTexture, NULL, &pausedRect);
+            SDL_FreeSurface(pausedSurface);
+            SDL_DestroyTexture(pausedTexture);
+        }
     }
 
 
+   if (gameOver) {
+        gameStarted = false;
+        Mix_PlayChannel(-1, amthanh2, 0);
 
+        if (gameOverRectY > mh_cao / 2 - 50) {
+            gameOverRectY -= 20;
+        }
 
+        gameoverscreen(gameOverRectY, ourfont);
 
+        if (isBackHovered) {
+            SDL_Rect hoverBackRect = {
+                backButtonRect.x - 5,
+                backButtonRect.y - 5,
+                backButtonRect.w + 10,
+                backButtonRect.h + 10
+            };
+            SDL_RenderCopy(renderer, backButtonTexture, NULL, &hoverBackRect);
+        } else {
+            SDL_RenderCopy(renderer, backButtonTexture, NULL, &backButtonRect);
+        }
+
+        if (score > highscore) {
+            highscore = score;
+            savehighscore(score);
+        }
     }
+
     string scoreText = "Score: " + to_string(score);
     SDL_Surface* scoreSurface = TTF_RenderText_Solid(ourfont, scoreText.c_str(), {255, 255, 255});
     SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
@@ -671,28 +658,6 @@ int mouseX, mouseY;
     SDL_RenderCopy(renderer, highscoreTexture, NULL, &highscoreRect);
     SDL_FreeSurface(highscoreSurface);
     SDL_DestroyTexture(highscoreTexture);
-    if (gameOver) {
-        Mix_PlayChannel(-1, amthanh2, 0);
-
-        if (gameOverRectY > mh_cao / 2 - 50) {
-            gameOverRectY -= 15;
-        }
-    gameoverscreen(gameOverRectY,ourfont);
-    if (isBackHovered) {
-            SDL_Rect hoverBackRect = {
-                backButtonRect.x - 5,
-                backButtonRect.y - 5,
-                backButtonRect.w + 10,
-                backButtonRect.h + 10
-            };
-            SDL_RenderCopy(renderer, backButtonTexture, NULL, &hoverBackRect);
-        } else {
-            SDL_RenderCopy(renderer, backButtonTexture, NULL, &backButtonRect);
-        }
-
-
-    }
-
     SDL_RenderPresent(renderer);
 
     SDL_Delay(16);
