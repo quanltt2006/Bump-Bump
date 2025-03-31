@@ -1,8 +1,13 @@
 # depslib dependency file v1.0
-1739248067 source:c:\users\admin\onedrive\desktop\game\main.cpp
-	<iostream>
+1743314879 source:c:\users\admin\onedrive\desktop\game\main.cpp
 	<SDL.h>
 	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<iostream>
+	<string>
+	<vector>
+	<fstream>
 
 1655425856 c:\users\admin\pictures\screenshots\sdl2_image-devel-2.5.2-mingw\sdl2_image-2.5.2\x86_64-w64-mingw32\include\sdl2\sdl_image.h
 	"SDL.h"

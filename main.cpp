@@ -1,113 +1,120 @@
 #include <SDL.h>
 #include <SDL_image.h>
-#include <iostream>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
+
 using namespace std;
 
-const int mh_rong = 500;
-const int mh_cao = 1000;
-const int vit_SIZE = 40;
+const int SCREEN_WIDTH = 500;
+const int SCREEN_HEIGHT = 1000;
+const int PLAYER_SIZE = 40;
 const int GRAVITY = 1;
-const int JUMP_STRENGTH = -15;
-const int vit_SPEED = 5;
-const int cnv_rong = 50;
-const int cnv_GAP = 500;
+const int JUMP_FORCE = -15;
+const int PLAYER_SPEED = 5;
+const int OBSTACLE_WIDTH = 50;
+const int OBSTACLE_GAP = 500;
+const int TARGET_FPS = 60;
+const int FRAME_DELAY = 1000 / TARGET_FPS;
 
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
-SDL_Texture* texture = nullptr;
-SDL_Texture* cnvTexture = nullptr;
+SDL_Texture* playerTexture = nullptr;
+SDL_Texture* obstacleTexture = nullptr;
 SDL_Texture* skullTexture = nullptr;
 SDL_Texture* pauseButtonTexture = nullptr;
 SDL_Texture* backButtonTexture = nullptr;
 
-struct cnv {
+struct Obstacle {
     int x, y, width, height;
 };
+
 struct Skull {
     int x, y, width, height;
 };
 
-vector<cnv> cnvs;
+vector<Obstacle> obstacles;
 vector<Skull> skulls;
-int loadhighscore() {
-    int highscore = 0 ;
-    ifstream file ("highscore.txt");
-    if(file.is_open()) {
-        file >> highscore;
+
+
+int loadHighScore() {
+    int highScore = 0;
+    ifstream file("highscore.txt");
+    if (file.is_open()) {
+        file >> highScore;
         file.close();
     }
-    return highscore;
+    return highScore;
 }
-void savehighscore(int highscore) {
-    ofstream file ("highscore.txt");
-    if (file.is_open()) { file << highscore ;
-    file.close();
+
+void saveHighScore(int highScore) {
+    ofstream file("highscore.txt");
+    if (file.is_open()) {
+        file << highScore;
+        file.close();
     }
 }
-bool init() {
+
+bool initializeSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        cout << "ERROR" << SDL_GetError() << std::endl;
+        cout << "SDL initialization failed: " << SDL_GetError() << endl;
         return false;
     }
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-        cout << "ERROR" << IMG_GetError() << std::endl;
+        cout << "SDL_image initialization failed: " << IMG_GetError() << endl;
         return false;
     }
 
     if (TTF_Init() == -1) {
-        cout << "ERROR" << TTF_GetError() << std::endl;
+        cout << "SDL_ttf initialization failed: " << TTF_GetError() << endl;
         return false;
     }
 
-    window = SDL_CreateWindow("BUMP BUMP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mh_rong, mh_cao, SDL_WINDOW_SHOWN);
-
-
+    window = SDL_CreateWindow("Bump Bump",
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SCREEN_WIDTH,
+                            SCREEN_HEIGHT,
+                            SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+    return true;
+}
+
+bool loadResources(string playerImagePath) {
+    SDL_Surface* tempSurface = IMG_Load(playerImagePath.c_str());
+    playerTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+
+    tempSurface = IMG_Load("cnv.png");
+    obstacleTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+
+    tempSurface = IMG_Load("skull.png");
+    skullTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+
+    tempSurface = IMG_Load("pause.png");
+    pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+
+    tempSurface = IMG_Load("back.png");
+    backButtonTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
 
     return true;
 }
 
-bool loadanh(string s ) {
-    SDL_Surface* surface = IMG_Load(s.c_str());
-
-
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-
-    surface = IMG_Load("cnv.png");
-
-
-    cnvTexture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    surface = IMG_Load("skull.png");
-
-    skullTexture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    surface = IMG_Load("pause.png");
-    pauseButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    surface = IMG_Load("back.png");
-    backButtonTexture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-    return true;
-}
-
-void close() {
-    SDL_DestroyTexture(texture);
-    SDL_DestroyTexture(cnvTexture);
+void cleanup() {
+    SDL_DestroyTexture(playerTexture);
+    SDL_DestroyTexture(obstacleTexture);
     SDL_DestroyTexture(skullTexture);
-    SDL_DestroyTexture(backButtonTexture);
     SDL_DestroyTexture(pauseButtonTexture);
-
+    SDL_DestroyTexture(backButtonTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
@@ -115,67 +122,69 @@ void close() {
     SDL_Quit();
 }
 
-void taoskulls() {
+void createSkulls() {
     skulls.clear();
-    Skull skull1 = {0, 100 , 40 , 40 };
-    Skull skull2 = {0, 800 , 40 , 40 };
-    skulls.push_back(skull1);
-    skulls.push_back(skull2);
+    skulls.push_back({0, 100, 40, 40});
+    skulls.push_back({0, 800, 40, 40});
 }
 
-void taocnvs( bool kt , bool flipped) {
-    if (!kt) {
-    cnvs.clear();
+void createObstacles(bool isHardMode, bool isFlipped) {
+    obstacles.clear();
+    if (!isHardMode) {
 
-    const int MIN_GAP = 100 ;
-    const int MIN_HEIGHT_EDGE = 250;
-    const int MAX_HEIGHT_EDGE = 300;
-    const int MIN_HEIGHT_MID = 100;
-    const int MAX_HEIGHT_MID = 200;
+        const int MIN_GAP = 100 ;
+        const int MIN_HEIGHT_EDGE = 250;
+        const int MAX_HEIGHT_EDGE = 300;
+        const int MIN_HEIGHT_MID = 100;
+        const int MAX_HEIGHT_MID = 200;
 
-    int topHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
+        int topHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
 
-    int bottomHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
-    int bottomY = mh_cao - bottomHeight;
-    int midHeight = MIN_HEIGHT_MID + rand() % (MAX_HEIGHT_MID - MIN_HEIGHT_MID + 1);
-    int midY = topHeight + MIN_GAP + rand() % (mh_cao - topHeight - bottomHeight - MIN_GAP - midHeight);
-    if (!flipped) {
-        cnv rightTop = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
-        cnv rightBottom = {mh_rong - cnv_rong, bottomY, cnv_rong, bottomHeight};
-        cnvs.push_back(rightBottom);
+        int bottomHeight = MIN_HEIGHT_EDGE + rand() % (MAX_HEIGHT_EDGE - MIN_HEIGHT_EDGE + 1);
+        int bottomY = SCREEN_HEIGHT - bottomHeight;
+        int midHeight = MIN_HEIGHT_MID + rand() % (MAX_HEIGHT_MID - MIN_HEIGHT_MID + 1);
+        int midY = topHeight + MIN_GAP + rand() % (SCREEN_HEIGHT - topHeight - bottomHeight - MIN_GAP - midHeight);
+        if (!isFlipped) {
+            Obstacle rightTop = {SCREEN_WIDTH - OBSTACLE_WIDTH, 0, OBSTACLE_WIDTH, topHeight};
+            Obstacle rightBottom = {SCREEN_WIDTH - OBSTACLE_WIDTH, bottomY, OBSTACLE_WIDTH, bottomHeight};
+            obstacles.push_back(rightBottom);
 
-        cnvs.push_back(rightTop);
-        if (rand() % 2 == 0) {
-            cnv rightMid = {mh_rong - cnv_rong, midY, cnv_rong, midHeight};
-            cnvs.push_back(rightMid);
-}
-} else {
-        cnv leftBottom = {0, bottomY, cnv_rong, bottomHeight};
-        cnv leftTop = {0, 0, cnv_rong, topHeight};
+            obstacles.push_back(rightTop);
+            if (rand() % 2 == 0) {
+                Obstacle rightMid = {SCREEN_WIDTH - OBSTACLE_WIDTH, midY, OBSTACLE_WIDTH, midHeight};
+                obstacles.push_back(rightMid);
+    }
+    } else {
+            Obstacle leftBottom = {0, bottomY, OBSTACLE_WIDTH, bottomHeight};
+            Obstacle leftTop = {0, 0, OBSTACLE_WIDTH, topHeight};
 
-        cnvs.push_back(leftBottom);
-        cnvs.push_back(leftTop);
-        if (rand() % 2 == 0) {
-            cnv leftMid = {0, midY, cnv_rong, midHeight};
-            cnvs.push_back(leftMid);
+            obstacles.push_back(leftBottom);
+            obstacles.push_back(leftTop);
+            if (rand() % 2 == 0) {
+                Obstacle leftMid = {0, midY, OBSTACLE_WIDTH, midHeight};
+                obstacles.push_back(leftMid);
+                }
             }
         }
+    else {
+
+            const int MIN_GAP = 200;
+            const int MAX_HEIGHT = SCREEN_HEIGHT / 3;
+
+            int topHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
+            Obstacle left = {0, 0, OBSTACLE_WIDTH, topHeight};
+            Obstacle right = {SCREEN_WIDTH - OBSTACLE_WIDTH, 0, OBSTACLE_WIDTH, topHeight};
+
+            obstacles.push_back(left);
+            obstacles.push_back(right);
+
     }
-else {   cnvs.clear();
-
-        const int MIN_GAP = 200;
-        const int MAX_HEIGHT = mh_cao / 3;
-
-        int topHeight = rand() % (MAX_HEIGHT - MIN_GAP) + MIN_GAP;
-        cnv left = {0, 0, cnv_rong, topHeight};
-        cnv right = {mh_rong - cnv_rong, 0, cnv_rong, topHeight};
-
-        cnvs.push_back(left);
-        cnvs.push_back(right);
-
 }
-}
-void drawmenu(bool& startGame, bool& isHardMode) {
+
+
+
+
+void showMainMenu(bool& startGame, bool& isHardMode) {
     SDL_Event e;
     bool inMenu = true;
     bool soundOn = true;
@@ -187,8 +196,6 @@ void drawmenu(bool& startGame, bool& isHardMode) {
         Mix_PlayChannel(-1, menuSound, 0);
     }
 
-
-
     SDL_Surface* speakerOnSurface = IMG_Load("on.png");
     SDL_Surface* speakerOffSurface = IMG_Load("off.png");
     SDL_Texture* speakerOnTexture = SDL_CreateTextureFromSurface(renderer, speakerOnSurface);
@@ -197,7 +204,7 @@ void drawmenu(bool& startGame, bool& isHardMode) {
     SDL_FreeSurface(speakerOffSurface);
 
     const int speakerSize = 40;
-    const int speakerX = mh_rong - speakerSize - 20;
+    const int speakerX = SCREEN_WIDTH - speakerSize - 20;
     const int speakerY = 20;
 
     while (inMenu) {
@@ -206,35 +213,35 @@ void drawmenu(bool& startGame, bool& isHardMode) {
 
         int easyButtonWidth = 100;
         int easyButtonHeight = 50;
-        int easyButtonX = mh_rong / 2 - easyButtonWidth / 2;
-        int easyButtonY = mh_cao / 2 - easyButtonHeight / 2 - 60;
+        int easyButtonX = SCREEN_WIDTH / 2 - easyButtonWidth / 2;
+        int easyButtonY = SCREEN_HEIGHT / 2 - easyButtonHeight / 2 - 60;
 
         int hardButtonWidth = 100;
         int hardButtonHeight = 50;
-        int hardButtonX = mh_rong / 2 - hardButtonWidth / 2;
-        int hardButtonY = mh_cao / 2 - hardButtonHeight / 2 + 60;
+        int hardButtonX = SCREEN_WIDTH / 2 - hardButtonWidth / 2;
+        int hardButtonY = SCREEN_HEIGHT / 2 - hardButtonHeight / 2 + 60;
 
         if (x >= easyButtonX && x <= easyButtonX + easyButtonWidth &&
             y >= easyButtonY && y <= easyButtonY + easyButtonHeight) {
             easyButtonWidth = 120;
             easyButtonHeight = 60;
-            easyButtonX = mh_rong / 2 - easyButtonWidth / 2;
-            easyButtonY = mh_cao / 2 - easyButtonHeight / 2 - 60;
+            easyButtonX = SCREEN_WIDTH / 2 - easyButtonWidth / 2;
+            easyButtonY = SCREEN_HEIGHT / 2 - easyButtonHeight / 2 - 60;
         }
 
         if (x >= hardButtonX && x <= hardButtonX + hardButtonWidth &&
             y >= hardButtonY && y <= hardButtonY + hardButtonHeight) {
             hardButtonWidth = 120;
             hardButtonHeight = 60;
-            hardButtonX = mh_rong / 2 - hardButtonWidth / 2;
-            hardButtonY = mh_cao / 2 - hardButtonHeight / 2 + 60;
+            hardButtonX = SCREEN_WIDTH / 2 - hardButtonWidth / 2;
+            hardButtonY = SCREEN_HEIGHT / 2 - hardButtonHeight / 2 + 60;
         }
 
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 inMenu = false;
                 startGame = false;
-                close();
+                cleanup();
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {
                 if (x >= speakerX && x <= speakerX + speakerSize &&
                     y >= speakerY && y <= speakerY + speakerSize) {
@@ -295,14 +302,11 @@ void drawmenu(bool& startGame, bool& isHardMode) {
     SDL_DestroyTexture(speakerOffTexture);
     SDL_DestroyTexture(menuTexture);
     SDL_FreeSurface(menusurface);
+
 }
 
 
-bool check_vacham(SDL_Rect a, SDL_Rect b) {
-    return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
-}
-string selectnvscreen(bool &startgame) {
-
+string showPlayerSelection(bool& startgame) {
     SDL_Event e;
     bool selectscreen = true;
     string selected = "";
@@ -310,7 +314,7 @@ string selectnvscreen(bool &startgame) {
     SDL_Texture* selecttexture = SDL_CreateTextureFromSurface(renderer, selectsurface);
     SDL_FreeSurface(selectsurface);
 
-    vector<cnv> v;
+    vector<Obstacle> v;
     vector<SDL_Texture*> nvtextures(6);
     for (int i = 0; i < 6; i++) {
         v.push_back({100 * (i % 3 + 1), 50 + 150 * (i / 3 +3 ) , 40, 40 });
@@ -374,300 +378,365 @@ string selectnvscreen(bool &startgame) {
         SDL_DestroyTexture(nvtextures[i]);
     }
     return selected;
+
 }
-void gameoverscreen(int& gameOverRectY, TTF_Font* ourfont) {
- SDL_Rect gameOverRect = {mh_rong / 2 - 100, gameOverRectY, 200, 100};
+
+
+bool checkCollision(SDL_Rect a, SDL_Rect b) {
+    return (a.x < b.x + b.w &&
+            a.x + a.w > b.x &&
+            a.y < b.y + b.h &&
+            a.y + a.h > b.y);
+}
+
+void showGameOver(int& gameOverRectY, TTF_Font* ourfont) {
+    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - 100, gameOverRectY, 200, 100};
         SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
         SDL_RenderFillRect(renderer, &gameOverRect);
 
         SDL_Surface* gameOverSurface = TTF_RenderText_Solid(ourfont, "Game Over", {255, 255, 255});
         SDL_Texture* gameOverTexture = SDL_CreateTextureFromSurface(renderer, gameOverSurface);
-        SDL_Rect gameOverTextRect = {mh_rong / 2 - 50, gameOverRectY + 20, gameOverSurface->w, gameOverSurface->h};
+        SDL_Rect gameOverTextRect = {SCREEN_WIDTH / 2 - 50, gameOverRectY + 20, gameOverSurface->w, gameOverSurface->h};
         SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverTextRect);
 
         SDL_Surface* replaySurface = TTF_RenderText_Solid(ourfont, "Press SPACE to replay", {255, 255,255});
         SDL_Texture* replayTexture = SDL_CreateTextureFromSurface(renderer, replaySurface);
-        SDL_Rect replayTextRect = {mh_rong / 2 - 100 , gameOverRectY + 60, replaySurface->w, replaySurface->h};
+        SDL_Rect replayTextRect = {SCREEN_WIDTH / 2 - 100 , gameOverRectY + 60, replaySurface->w, replaySurface->h};
         SDL_RenderCopy(renderer, replayTexture, NULL, &replayTextRect);
+                if (gameOverRectY > SCREEN_HEIGHT / 2 - 50) {
+            gameOverRectY -= 20;
+        }
+
         SDL_DestroyTexture(gameOverTexture);
         SDL_DestroyTexture(replayTexture);
 
+}
+void updateGameLogic(
+    int& playerX, int& playerY,
+    int& playerVelX, int& playerVelY,
+    bool& isFlipped,
+    int& score,
+    int& highScore,
+    bool& isGameOver,
+    bool& hasGameStarted,
+    bool isHardMode,
+    Uint32& lastObstacleTime,
+    int& obstacleSpeed,
+    int& skullSpeed,
+    Mix_Chunk* scoreSound,
+    Mix_Chunk* gameOverSound
+) {
+    playerVelY += GRAVITY;
+    playerY += playerVelY;
+    playerX += playerVelX;
 
+    if (playerX < 0 || playerX + PLAYER_SIZE > SCREEN_WIDTH) {
+        playerVelX = -playerVelX;
+        isFlipped = !isFlipped;
+        score++;
+        Mix_PlayChannel(-1, scoreSound, 0);
+        lastObstacleTime = SDL_GetTicks();
+    }
+
+    if (lastObstacleTime > 0 && SDL_GetTicks() - lastObstacleTime >= 500) {
+        lastObstacleTime = 0;
+        if (!isHardMode) {
+            createObstacles(isHardMode, isFlipped);
+        }
+    }
+
+    if (playerY < 0) {
+        playerY = 0;
+        playerVelY = 0;
+    } else if (playerY + PLAYER_SIZE > SCREEN_HEIGHT) {
+        playerY = SCREEN_HEIGHT - PLAYER_SIZE;
+        playerVelY = 0;
+    }
+
+    if (isHardMode && !obstacles.empty() && !skulls.empty()) {
+        obstacles[0].y += obstacleSpeed;
+        obstacles[1].y += obstacleSpeed;
+
+        if (obstacles[0].y < 0 || obstacles[0].y + obstacles[0].height > SCREEN_HEIGHT) {
+            obstacleSpeed = -obstacleSpeed;
+        }
+
+        for (auto& skull : skulls) {
+            skull.x += skullSpeed;
+            if (skull.x <= 0 || skull.x + skull.width >= SCREEN_WIDTH) {
+                skullSpeed = -skullSpeed;
+            }
+        }
+    }
+
+    SDL_Rect playerRect = {playerX, playerY, PLAYER_SIZE, PLAYER_SIZE};
+
+    for (const auto& obstacle : obstacles) {
+        SDL_Rect obstacleRect = {obstacle.x, obstacle.y, obstacle.width, obstacle.height};
+        if (checkCollision(playerRect, obstacleRect)) {
+            isGameOver = true;
+            Mix_PlayChannel(-1, gameOverSound, 0);
+            hasGameStarted = false;
+            if (score > highScore) {
+                highScore = score;
+                saveHighScore(highScore);
+            }
+            return;;
+        }
+    }
+
+    if (isHardMode) {
+        for (const auto& skull : skulls) {
+            SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
+            if (checkCollision(playerRect, skullRect)) {
+                isGameOver = true;
+                Mix_PlayChannel(-1, gameOverSound, 0);
+                hasGameStarted = false;
+                 if (score > highScore) {
+                highScore = score;
+                saveHighScore(highScore);
+            }
+            return;
+            }
+        }
+    }
+}
+void renderText(
+    SDL_Renderer* renderer,
+    TTF_Font* font,
+    const string& text,
+    int x, int y,
+    SDL_Color color
+) {
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect = {x, y, surface->w, surface->h};
+
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
+void handlePauseButton(
+    SDL_Renderer* renderer,
+    SDL_Texture* pauseTexture,        e
+    TTF_Font* font,
+    SDL_Rect& pauseRect,
+    bool& isPaused,
+    int mouseX, int mouseY,
+    bool hasGameStarted,
+    bool isGameOver,
+    bool clicked
+) {
+    if (!isGameOver && hasGameStarted) {
+        bool isHovered = (mouseX >= pauseRect.x &&
+                         mouseX <= pauseRect.x + pauseRect.w &&
+                         mouseY >= pauseRect.y &&
+                         mouseY <= pauseRect.y + pauseRect.h);
+
+        if (clicked && isHovered) {
+            isPaused = !isPaused;
+            isPaused ? Mix_Pause(-1) : Mix_Resume(-1);
+        }
+
+        SDL_Rect renderRect = isHovered ?
+            SDL_Rect{pauseRect.x - 5, pauseRect.y - 5,
+                    pauseRect.w + 10, pauseRect.h + 10} :
+            pauseRect;
+        SDL_RenderCopy(renderer, pauseTexture, nullptr, &renderRect);
+
+        if (isPaused) {
+            SDL_Color white = {255, 255, 255};
+            renderText(renderer, font, "PAUSED",
+                      SCREEN_WIDTH / 2 - 30, SCREEN_HEIGHT / 2 - 10, white);
+        }
+    }
+}
+void handleBackButton(
+    SDL_Renderer* renderer,
+    SDL_Texture* backTexture,
+    SDL_Rect& backRect,
+    bool& isHardMode,
+    bool& isGameOver,
+    bool& hasGameStarted,
+    int& playerX, int& playerY,
+    int& playerVelY,
+    int& score,
+    int& gameOverRectY,
+    int mouseX, int mouseY,
+    bool clicked,
+    bool isFlipped,
+    Mix_Chunk* clickSound
+) {
+    if (isGameOver) {
+        bool isHovered = (mouseX >= backRect.x &&
+                         mouseX <= backRect.x + backRect.w &&
+                         mouseY >= backRect.y &&
+                         mouseY <= backRect.y + backRect.h);
+
+        if (clicked && isHovered) {
+            isHardMode = !isHardMode;
+            Mix_PlayChannel(-1, clickSound, 0);
+            playerX = SCREEN_WIDTH / 2;
+            playerY = SCREEN_HEIGHT / 2;
+            playerVelY = 0;
+            score = 0;
+            createObstacles(isHardMode, isFlipped);
+            isHardMode ? createSkulls() : skulls.clear();
+            hasGameStarted = false;
+            isGameOver = false;
+            gameOverRectY = SCREEN_HEIGHT;
+        }
+
+        SDL_Rect renderRect = isHovered ?
+            SDL_Rect{backRect.x - 5, backRect.y - 5,
+                    backRect.w + 10, backRect.h + 10} :
+            backRect;
+        SDL_RenderCopy(renderer, backTexture, nullptr, &renderRect);
+    }
+}
+void resetGame(bool& isGameOver, int& gameOverRectY, int& playerX, int& playerY,
+               int& playerVelY, int& score, bool isHardMode, bool isFlipped) {
+    isGameOver = false;
+    gameOverRectY = SCREEN_HEIGHT;
+    playerX = SCREEN_WIDTH / 2;
+    playerY = SCREEN_HEIGHT / 2;
+    playerVelY = 0;
+    score = 0;
+    createObstacles(isHardMode, isFlipped);
+    if (isHardMode) createSkulls();
 }
 int main(int argc, char* argv[]) {
-    if (!init()) {
+    if (!initializeSDL()) {
         return -1;
     }
 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-    Mix_Chunk* amthanh = Mix_LoadWAV("click.wav");
-    Mix_Chunk* amthanh1 = Mix_LoadWAV("beep.wav");
-    Mix_Chunk* amthanh2 = Mix_LoadWAV("bye.mp3");
+    Mix_Chunk* jumpSound = Mix_LoadWAV("click.wav");
+    Mix_Chunk* scoreSound = Mix_LoadWAV("beep.wav");
+    Mix_Chunk* gameOverSound = Mix_LoadWAV("bye.mp3");
 
-    TTF_Font* ourfont = TTF_OpenFont("hihi.ttf", 10 );
-    if (!ourfont) {
-        cout << "Error" << TTF_GetError() << std::endl;
+    TTF_Font* font = TTF_OpenFont("hihi.ttf", 10);
+    if (!font) {
+        cout << "Font loading failed: " << TTF_GetError() << endl;
         return -1;
     }
-    bool hardmode = false ;
+
+    bool isHardMode = false;
     bool startGame = false;
-    bool selectscreen = false ;
-    drawmenu(selectscreen,hardmode);
-    string selected = selectnvscreen(startGame);
-    loadanh(selected);
+    bool isRunning = true;
+
+    showMainMenu(startGame, isHardMode);
+    string selectedPlayer = showPlayerSelection(startGame);
+    loadResources(selectedPlayer);
+
     if (!startGame) {
-        close();
+        cleanup();
         return 0;
     }
 
-    int vitX = mh_rong / 2;
-    int vitY = mh_cao / 2;
-    int vitVelY = 0;
-    int vitVelX = vit_SPEED;
+    int playerX = SCREEN_WIDTH / 2;
+    int playerY = SCREEN_HEIGHT / 2;
+    int playerVelY = 0;
+    int playerVelX = PLAYER_SPEED;
+    bool isFlipped = false;
 
-    bool quit = false;
-    SDL_Event e;
-
-    bool flipped = false;
-
-    taocnvs(hardmode,flipped);
-    taoskulls();
-    Uint32 lastPassedTime = 0;
     int score = 0;
-    bool gameOver = false;
-    int gameOverRectY = mh_cao;
-    bool gameStarted = false;
-    int cnvtocdo = 10;
-    int cnvtocdo1 = 3;
-    int highscore = loadhighscore();
+    int highScore = loadHighScore();
+    bool isGameOver = false;
     bool isPaused = false;
+    bool hasGameStarted = false;
+    int gameOverRectY = SCREEN_HEIGHT;
+    Uint32 lastObstacleTime = 0;
+    int obstacleSpeed = 10;
+    int skullSpeed = 3;
 
+    SDL_Rect pauseButtonRect = {SCREEN_WIDTH - 80, 20, 40, 40};
+    SDL_Rect backButtonRect = {SCREEN_WIDTH/2 - 20, 400, 40, 40};
 
+    createObstacles(isHardMode, isFlipped);
+    if (isHardMode) createSkulls();
 
-while (!quit) {
-    SDL_Rect pauseButtonRect = {mh_rong - 80, 20, 40, 40};
-    SDL_Rect backButtonRect = {mh_rong/2 - 30   ,400, 40, 40};
+    SDL_Event event;
+    while (isRunning) {
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        bool mouseClicked = false;
 
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-    bool isPauseHovered = (mouseX >= pauseButtonRect.x && mouseX <= pauseButtonRect.x + pauseButtonRect.w &&
-                          mouseY >= pauseButtonRect.y && mouseY <= pauseButtonRect.y + pauseButtonRect.h);
-
-    bool isBackHovered = (mouseX >= backButtonRect.x && mouseX <= backButtonRect.x + backButtonRect.w &&
-                         mouseY >= backButtonRect.y && mouseY <= backButtonRect.y + backButtonRect.h);
-
-
-
-    while (SDL_PollEvent(&e) != 0) {
-        if (e.type == SDL_QUIT) {
-            quit = true;
-        }
-        else if (e.type == SDL_MOUSEBUTTONDOWN) {
-            if (isPauseHovered) {
-                isPaused = !isPaused;
-                isPaused ? Mix_Pause(-1) : Mix_Resume(-1);
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                isRunning = false;
             }
-
-            if (isBackHovered) {
-                hardmode = !hardmode;
-                Mix_PlayChannel(-1, amthanh, 0);
-
-                vitX = mh_rong / 2;
-                vitY = mh_cao / 2;
-                vitVelY = 0;
-                score = 0;
-
-                taocnvs(hardmode, flipped);
-                hardmode ? taoskulls() : skulls.clear();
-
-                gameStarted = false;
-                gameOver = false;
-            }
-        }
-        else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE) {
-            if (gameOver) {
-                gameOver = false;
-                gameOverRectY = mh_cao;
-
-                vitX = mh_rong / 2;
-                vitY = mh_cao / 2;
-                vitVelY = 0;
-                score = 0;
-
-                taocnvs(hardmode, flipped);
-                if (hardmode) taoskulls();
-
-                gameStarted = false;
-            }
-            else if (!gameStarted) {
-                gameStarted = true;
-                vitVelY = JUMP_STRENGTH;
-                Mix_PlayChannel(-1, amthanh, 0);
-            }
-            else {
-                vitVelY = JUMP_STRENGTH;
-                Mix_PlayChannel(-1, amthanh, 0);
-            }
-        }
-    }
-
-
-
-    if (!isPaused && !gameOver && gameStarted) {
-        vitVelY += GRAVITY;
-        vitY += vitVelY;
-        vitX += vitVelX;
-
-        if (vitX < 0 || vitX + vit_SIZE > mh_rong) {
-            vitVelX = -vitVelX;
-            flipped = !flipped;
-            score++;
-            Mix_PlayChannel(-1, amthanh1, 0);
-            lastPassedTime = SDL_GetTicks();
-        }
-
-        if (lastPassedTime > 0 && SDL_GetTicks() - lastPassedTime >= 500) {
-            lastPassedTime = 0;
-            if (!hardmode) {
-                taocnvs(hardmode, flipped);
-            }
-        }
-
-        if (vitY < 0) {
-            vitY = 0;
-            vitVelY = 0;
-        } else if (vitY + vit_SIZE > mh_cao) {
-            vitY = mh_cao - vit_SIZE;
-            vitVelY = 0;
-        }
-
-        if (hardmode) {
-            cnvs[0].y += cnvtocdo;
-            cnvs[1].y += cnvtocdo;
-
-            if (cnvs[0].y < 0 || cnvs[0].y + cnvs[0].height > mh_cao) {
-                cnvtocdo = -cnvtocdo;
-            }
-
-            for (auto& skull : skulls) {
-                skull.x += cnvtocdo1;
-                if (skull.x <= 0 || skull.x + skull.width >= mh_rong) {
-                    cnvtocdo1 = -cnvtocdo1;
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+                if (isGameOver) {
+                   resetGame(isGameOver, gameOverRectY, playerX, playerY,
+                 playerVelY, score, isHardMode, isFlipped);
+                }
+                else if (!hasGameStarted) {
+                    hasGameStarted = true;
+                    playerVelY = JUMP_FORCE;
+                    Mix_PlayChannel(-1, jumpSound, 0);
+                }
+                else if (!isPaused) {
+                    playerVelY = JUMP_FORCE;
+                    Mix_PlayChannel(-1, jumpSound, 0);
                 }
             }
-        }
-
-        SDL_Rect vitRect = {vitX, vitY, vit_SIZE, vit_SIZE};
-        for (auto& cnv : cnvs) {
-            SDL_Rect cnvRect = {cnv.x, cnv.y, cnv.width, cnv.height};
-            if (check_vacham(vitRect, cnvRect)) {
-                gameOver = true;
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                mouseClicked = true;
             }
         }
 
-        if (hardmode) {
-            for (auto &skull : skulls) {
+        if (!isPaused && !isGameOver && hasGameStarted) {
+            updateGameLogic(playerX, playerY, playerVelX, playerVelY, isFlipped,
+                          score, highScore, isGameOver, hasGameStarted, isHardMode,
+                          lastObstacleTime, obstacleSpeed, skullSpeed,
+                          scoreSound, gameOverSound);
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        SDL_RenderClear(renderer);
+
+        SDL_Rect playerRect = {playerX, playerY, PLAYER_SIZE, PLAYER_SIZE};
+        SDL_RenderCopyEx(renderer, playerTexture, nullptr, &playerRect,
+                        0, nullptr, isFlipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+
+        for (const auto& obstacle : obstacles) {
+            SDL_Rect obstacleRect = {obstacle.x, obstacle.y, obstacle.width, obstacle.height};
+            SDL_RenderCopy(renderer, obstacleTexture, nullptr, &obstacleRect);
+        }
+
+        if (isHardMode) {
+            for (const auto& skull : skulls) {
                 SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
-                if (check_vacham(skullRect, vitRect)) {
-                    gameOver = true;
-                }
+                SDL_RenderCopy(renderer, skullTexture, nullptr, &skullRect);
             }
         }
-    }
 
+        handlePauseButton(renderer, pauseButtonTexture, font, pauseButtonRect,
+                         isPaused, mouseX, mouseY, hasGameStarted, isGameOver, mouseClicked);
+        handleBackButton(renderer, backButtonTexture, backButtonRect, isHardMode,
+                        isGameOver, hasGameStarted, playerX, playerY, playerVelY,
+                        score, gameOverRectY, mouseX, mouseY, mouseClicked, isFlipped, jumpSound);
 
-    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-    SDL_RenderClear(renderer);
+        SDL_Color white = {255, 255, 255};
+        renderText(renderer, font, "Score: " + to_string(score), 50, 20, white);
+        renderText(renderer, font, "High Score: " + to_string(highScore), 200, 20, white);
 
-    SDL_Rect vitRect = {vitX, vitY, vit_SIZE, vit_SIZE};
-    SDL_RenderCopyEx(renderer, texture, NULL, &vitRect, 0, NULL, flipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-
-    for (auto& cnv : cnvs) {
-        SDL_Rect cnvRect = {cnv.x, cnv.y, cnv.width, cnv.height};
-        SDL_RenderCopy(renderer, cnvTexture, NULL, &cnvRect);
-    }
-
-    if (hardmode) {
-        for (auto& skull : skulls) {
-            SDL_Rect skullRect = {skull.x, skull.y, skull.width, skull.height};
-            SDL_RenderCopy(renderer, skullTexture, NULL, &skullRect);
-            SDL_RenderDrawRect(renderer, &skullRect);
-        }
-    }
-
-
-    if (!gameOver && gameStarted) {
-        SDL_Rect pauseRect = isPauseHovered ? SDL_Rect{pauseButtonRect.x - 5, pauseButtonRect.y - 5, pauseButtonRect.w + 10, pauseButtonRect.h + 10} : pauseButtonRect;
-        SDL_RenderCopy(renderer, pauseButtonTexture, NULL, &pauseRect);
-
-        if (isPaused) {
-            SDL_Surface* pausedSurface = TTF_RenderText_Solid(ourfont, "PAUSED", {255, 255, 255});
-            SDL_Texture* pausedTexture = SDL_CreateTextureFromSurface(renderer, pausedSurface);
-            SDL_Rect pausedRect = {
-                mh_rong / 2 - pausedSurface->w / 2,
-                mh_cao / 2 - pausedSurface->h / 2,
-                pausedSurface->w,
-                pausedSurface->h
-            };
-            SDL_RenderCopy(renderer, pausedTexture, NULL, &pausedRect);
-            SDL_FreeSurface(pausedSurface);
-            SDL_DestroyTexture(pausedTexture);
-        }
-    }
-
-
-   if (gameOver) {
-        gameStarted = false;
-        Mix_PlayChannel(-1, amthanh2, 0);
-
-        if (gameOverRectY > mh_cao / 2 - 50) {
-            gameOverRectY -= 20;
+        if (isGameOver) {
+            showGameOver(gameOverRectY, font);
         }
 
-        gameoverscreen(gameOverRectY, ourfont);
-
-        if (isBackHovered) {
-            SDL_Rect hoverBackRect = {
-                backButtonRect.x - 5,
-                backButtonRect.y - 5,
-                backButtonRect.w + 10,
-                backButtonRect.h + 10
-            };
-            SDL_RenderCopy(renderer, backButtonTexture, NULL, &hoverBackRect);
-        } else {
-            SDL_RenderCopy(renderer, backButtonTexture, NULL, &backButtonRect);
-        }
-
-        if (score > highscore) {
-            highscore = score;
-            savehighscore(score);
-        }
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
     }
 
-    string scoreText = "Score: " + to_string(score);
-    SDL_Surface* scoreSurface = TTF_RenderText_Solid(ourfont, scoreText.c_str(), {255, 255, 255});
-    SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
-    SDL_Rect scoreRect = {50, 20, scoreSurface->w, scoreSurface->h};
-    SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
-    SDL_FreeSurface(scoreSurface);
-    SDL_DestroyTexture(scoreTexture);
-    string highscoreText = "MAX: " + to_string(highscore);
-    SDL_Surface* highscoreSurface = TTF_RenderText_Solid(ourfont, highscoreText.c_str(), {255, 255, 255});
-    SDL_Texture* highscoreTexture = SDL_CreateTextureFromSurface(renderer, highscoreSurface);
-    SDL_Rect highscoreRect = {200, 20 , highscoreSurface->w, highscoreSurface->h};
-    SDL_RenderCopy(renderer, highscoreTexture, NULL, &highscoreRect);
-    SDL_FreeSurface(highscoreSurface);
-    SDL_DestroyTexture(highscoreTexture);
-    SDL_RenderPresent(renderer);
-
-    SDL_Delay(16);
-}
-    close();
-    TTF_CloseFont(ourfont);
-    Mix_FreeChunk(amthanh);
-    Mix_FreeChunk(amthanh1);
-    Mix_FreeChunk(amthanh2);
-
+    cleanup();
+    TTF_CloseFont(font);
+    Mix_FreeChunk(jumpSound);
+    Mix_FreeChunk(scoreSound);
+    Mix_FreeChunk(gameOverSound);
     Mix_CloseAudio();
-return 0;
+
+    return 0;
 }
