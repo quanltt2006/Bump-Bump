@@ -1,0 +1,21 @@
+/* Basic theme */
+.root {
+  -fx-font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  -fx-background-color: linear-gradient(to bottom, #0b0f1a, #070a12);
+}
+
+.button.primary {
+  -fx-background-color: #2b6cb0;
+  -fx-text-fill: white;
+}
+
+.title-text {
+  -fx-font-size: 36px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #e2e8f0;
+}
+
+.subtitle-text {
+  -fx-font-size: 16px;
+  -fx-text-fill: #a0aec0;
+}
