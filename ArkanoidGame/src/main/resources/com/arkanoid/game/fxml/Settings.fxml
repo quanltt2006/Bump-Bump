@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.arkanoid.game.controller.SettingsController"
+      stylesheets="@../css/style.css" spacing="12" prefWidth="800" prefHeight="600">
+    <children>
+        <Label text="Settings" styleClass="title" />
+        <HBox spacing="8"><children><Label text="Music" /><Slider fx:id="musicSlider" max="1.0" blockIncrement="0.1" /></children></HBox>
+        <HBox spacing="8"><children><Label text="Effects" /><Slider fx:id="effectsSlider" max="1.0" blockIncrement="0.1" /></children></HBox>
+        <HBox spacing="8"><children><Label text="Quality" /><ComboBox fx:id="qualityCombo" /></children></HBox>
+        <HBox spacing="8"><children><Label text="Language" /><ComboBox fx:id="languageCombo" /></children></HBox>
+        <CheckBox fx:id="fullscreenCheck" text="Fullscreen" />
+        <Button fx:id="saveButton" text="Save" />
+    </children>
+</VBox>

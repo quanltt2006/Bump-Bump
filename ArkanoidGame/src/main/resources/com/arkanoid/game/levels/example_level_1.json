@@ -1,0 +1,12 @@
+{
+  "levelId": 1,
+  "name": "Asteroid Field",
+  "background": "space_bg_1.png",
+  "bricks": [
+    {"type": "normal", "row": 0, "col": 0, "color": "blue"},
+    {"type": "hard", "row": 0, "col": 1, "hits": 2}
+  ],
+  "powerUpDrops": [
+    {"type": "multiBall", "atBrick": [2, 3]}
+  ]
+}

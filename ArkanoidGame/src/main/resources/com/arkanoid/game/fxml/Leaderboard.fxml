@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.arkanoid.game.controller.LeaderboardController"
+      stylesheets="@../css/style.css" spacing="12" prefWidth="800" prefHeight="600">
+    <children>
+        <HBox spacing="8">
+            <Button text="Global" />
+            <Button text="Friends" />
+        </HBox>
+        <TableView fx:id="leaderboardTable" prefHeight="560">
+            <columns>
+                <TableColumn fx:id="rankColumn" text="Rank" prefWidth="100" />
+                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="300" />
+                <TableColumn fx:id="scoreColumn" text="Score" prefWidth="300" />
+            </columns>
+        </TableView>
+    </children>
+</VBox>

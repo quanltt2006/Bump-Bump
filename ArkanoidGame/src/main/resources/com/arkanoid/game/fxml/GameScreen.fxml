@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.arkanoid.game.controller.GameController"
+            stylesheets="@../css/style.css" prefWidth="800" prefHeight="600">
+    <top>
+        <HBox spacing="16" alignment="CENTER">
+            <children>
+                <Label fx:id="scoreLabel" text="Score: 0" />
+                <Label fx:id="livesLabel" text="Lives: 3" />
+                <Label fx:id="levelLabel" text="Level: 1" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <Canvas fx:id="gameCanvas" width="800" height="560" BorderPane.alignment="CENTER" />
+    </center>
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_RIGHT">
+            <children>
+                <Button fx:id="pauseButton" text="Pause" onAction="#onPause" />
+                <Button fx:id="exitButton" text="Exit" onAction="#onExit" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

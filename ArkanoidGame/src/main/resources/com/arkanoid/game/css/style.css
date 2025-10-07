@@ -1,0 +1,36 @@
+:root {
+}
+
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #1a1a2e;
+}
+
+.title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.label {
+    -fx-text-fill: #e0e0f0;
+}
+
+.button {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: #b73e51;
+}
+
+#gameCanvas {
+    -fx-background-color: black;
+    -fx-border-color: #4a4a6e;
+    -fx-border-width: 2px;
+}
