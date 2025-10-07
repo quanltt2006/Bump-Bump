@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.arkanoid.game.controller.LoginController" spacing="12" alignment="CENTER"
+      stylesheets="@../css/style.css" prefWidth="800" prefHeight="600">
+    <children>
+        <Label text="Arkanoid: Shattered Realms" style="-fx-text-fill: white; -fx-font-size: 28px;" />
+        <VBox spacing="8">
+            <TextField fx:id="usernameField" promptText="Username or Email" />
+            <PasswordField fx:id="passwordField" promptText="Password" />
+            <HBox spacing="8">
+                <Button fx:id="loginButton" text="Login" onAction="#onLogin" />
+                <Button fx:id="registerButton" text="Register" onAction="#onRegister" />
+                <Button fx:id="guestButton" text="Guest" onAction="#onGuest" />
+            </HBox>
+        </VBox>
+        <Hyperlink text="Forgot password?" />
+    </children>
+    <padding><Insets topRightBottomLeft="24"/></padding>
+</VBox>

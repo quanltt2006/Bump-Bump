@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.arkanoid.game.controller.ShopController"
+            stylesheets="@../css/style.css" prefWidth="800" prefHeight="600">
+    <top>
+        <HBox spacing="16">
+            <children>
+                <Label fx:id="coinsLabel" text="Coins: 0" />
+                <Label fx:id="gemsLabel" text="Gems: 0" />
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <VBox spacing="8" />
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.arkanoid.game.controller.PaddleSelectionController"
+      stylesheets="@../css/style.css" alignment="CENTER" spacing="12" prefWidth="800" prefHeight="600">
+    <children>
+        <ImageView fitWidth="300" preserveRatio="true" />
+        <Label fx:id="paddleNameLabel" text="Default Paddle" />
+        <HBox spacing="8">
+            <Button text="<" />
+            <Button text=">" />
+            <Button text="Select" />
+            <Button text="Upgrade" />
+        </HBox>
+    </children>
+</VBox>

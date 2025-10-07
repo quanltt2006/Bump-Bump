@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.arkanoid.game.controller.MainMenuController"
+            stylesheets="@../css/style.css" prefWidth="800" prefHeight="600">
+    <top>
+        <HBox spacing="16" alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Player: Guest" />
+                <Label text="Coins: 0" />
+                <Label text="Gems: 0" />
+            </children>
+            <padding><Insets topRightBottomLeft="12"/></padding>
+        </HBox>
+    </top>
+    <center>
+        <VBox alignment="CENTER" spacing="12">
+            <children>
+                <Label text="Arkanoid: Shattered Realms" styleClass="title" />
+                <Button text="Play" onAction="#onPlay" />
+                <Button text="Shop" onAction="#onShop" />
+                <Button text="Paddle" onAction="#onPaddle" />
+                <Button text="Leaderboard" onAction="#onLeaderboard" />
+                <Button text="Settings" onAction="#onSettings" />
+                <Button text="Logout" onAction="#onLogout" />
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
